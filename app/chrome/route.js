@@ -5,5 +5,7 @@ export async function GET() {
     "chrome://version",
     "document.body.contentEditable='true'",
     "document.designMode='on'",
+    'localstorage.setitem("a",1)',
+    'localstorage.getitem("a")'
   ]);
 }

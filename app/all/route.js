@@ -10,5 +10,6 @@ export async function GET() {
     "windows",
     "chrome",
     "tool",
+    "pnpm",
   ]);
 }
