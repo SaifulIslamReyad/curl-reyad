@@ -11,5 +11,8 @@ export async function GET() {
     "chrome",
     "tool",
     "pnpm",
+    "python/urllib",
+    "python/socket",
+    "python/http",
   ]);
 }

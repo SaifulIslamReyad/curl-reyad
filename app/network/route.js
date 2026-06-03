@@ -5,7 +5,8 @@ export async function GET() {
     "ping 8.8.8.8",
     "nslookup example.com",
     "tracert example.com",
-    "netstat -ano",
+    "netstat -ano | grep <port>",
+    "taskkill /PID <id> /F",
     "curl https://example.com",
   ]);
 }
