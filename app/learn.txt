@@ -1,0 +1,7 @@
+grep
+sort -n
+column  -t
+command >> outpt.txt
+jq
+sed
+awk
