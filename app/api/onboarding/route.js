@@ -15,7 +15,7 @@ export async function POST(request) {
       `students/${record.id}.json`,
       JSON.stringify(record, null, 2),
       {
-        access: "public",
+        access: "public", 
         contentType: "application/json",
       }
     );
