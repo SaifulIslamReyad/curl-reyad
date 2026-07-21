@@ -1,6 +1,5 @@
 // app/admin/students/page.jsx
-import fs from "fs";
-import path from "path";
+import { list } from "@vercel/blob";
 
 const syllabusKnowledgeLabels = {
   A: "Well-known from school",
@@ -27,26 +26,41 @@ const theoryLearningStyleLabels = {
 
 function formatAnswer(value, lookup) {
   if (!value) return "Not provided";
-
   return lookup[value] || value;
 }
 
-export default function AdminStudentsPage() {
-  const filePath = path.join(process.cwd(), "student_data.json");
-  let students = [];
+export default async function AdminStudentsPage() {
+  // List all files under students/
+  const { blobs } = await list({
+    prefix: "students/",
+  });
 
-  if (fs.existsSync(filePath)) {
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    students = JSON.parse(fileContent || "[]");
-  }
+  // Read each JSON file
+  const students = await Promise.all(
+    blobs.map(async (blob) => {
+      const response = await fetch(blob.url, {
+        cache: "no-store",
+      });
+
+      return response.json();
+    })
+  );
+
+  // Newest first
+  students.sort(
+    (a, b) => new Date(b.submittedAt) - new Date(a.submittedAt)
+  );
 
   return (
     <div className="max-w-4xl mx-auto p-6 font-sans">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">
         Saved Student Profiles
       </h1>
+
       {students.length === 0 ? (
-        <p className="text-gray-500">No student profiles submitted yet.</p>
+        <p className="text-gray-500">
+          No student profiles submitted yet.
+        </p>
       ) : (
         <div className="space-y-4">
           {students.map((s) => (
@@ -58,42 +72,60 @@ export default function AdminStudentsPage() {
                 <h3 className="text-lg font-bold text-gray-800">
                   {s.studentName}
                 </h3>
+
                 <span className="text-xs text-gray-400">
                   {new Date(s.submittedAt).toLocaleDateString()}
                 </span>
               </div>
+
               <div className="text-sm text-gray-600 grid grid-cols-2 gap-2 pt-2">
                 <p>
                   <strong>Syllabus Knowledge:</strong>{" "}
-                  {formatAnswer(s.syllabusKnowledge, syllabusKnowledgeLabels)}
+                  {formatAnswer(
+                    s.syllabusKnowledge,
+                    syllabusKnowledgeLabels
+                  )}
                 </p>
+
                 <p>
                   <strong>Exam Series:</strong>{" "}
                   {s.targetExamSeries || "Not provided"}
                 </p>
+
                 <p>
                   <strong>Primary Goal:</strong>{" "}
-                  {formatAnswer(s.mainPriority, mainPriorityLabels)}
+                  {formatAnswer(
+                    s.mainPriority,
+                    mainPriorityLabels
+                  )}
                 </p>
+
                 <p>
                   <strong>Paper 2 Preference:</strong>{" "}
-                  {formatAnswer(s.paper2Preference, paper2PreferenceLabels)}
+                  {formatAnswer(
+                    s.paper2Preference,
+                    paper2PreferenceLabels
+                  )}
                 </p>
+
                 <p>
                   <strong>Theory Learning Style:</strong>{" "}
                   {formatAnswer(
                     s.theoryLearningStyle,
-                    theoryLearningStyleLabels,
+                    theoryLearningStyleLabels
                   )}
                 </p>
+
                 <p>
                   <strong>Self Study:</strong>{" "}
                   {s.weeklySelfStudyHours || "Not provided"}
                 </p>
+
                 <p className="col-span-2">
                   <strong>Coding Background:</strong>{" "}
                   {s.codingBackground || "Not provided"}
                 </p>
+
                 <p className="col-span-2">
                   <strong>School Feedback:</strong>{" "}
                   {s.schoolStatus || "Not provided"}
